@@ -1,14 +1,15 @@
-from typing import Optional, List
-from sqlalchemy import String, UUID
+from typing import List
+
+from sqlalchemy import String, UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.SQLAlchemy.base import Base
 from src.models.record.model import RecordModel
 
 
-class RegionModel(Base):
-    __tablename__ = 'region'
+class ParameterModel(Base):
+    __tablename__ = 'parameter'
 
     id: Mapped[str] = mapped_column(UUID, primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
-    description: Mapped[Optional[str]] = mapped_column(String(500))
+    measure_id: Mapped[str] = mapped_column(ForeignKey('measure.id'))
     children: Mapped[List[RecordModel]] = relationship()

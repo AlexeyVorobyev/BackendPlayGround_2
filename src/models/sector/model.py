@@ -5,8 +5,8 @@ from src.SQLAlchemy.base import Base
 from src.models.record.model import RecordModel
 
 
-class RegionModel(Base):
-    __tablename__ = 'region'
+class SectorModel(Base):
+    __tablename__ = 'sector'
 
     id: Mapped[str] = mapped_column(UUID, primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
