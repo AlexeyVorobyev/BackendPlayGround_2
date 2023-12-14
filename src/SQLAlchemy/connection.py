@@ -1,17 +1,15 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABC
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
-
-from src.SQLAlchemy.base import Base
-from src.utils.config import config
+from src.utils.decorators.singleton import singleton
 
 
 class AlchemyConnection(ABC):
     @abstractmethod
-    def create_database(self):
+    def __init__(self, config_arg):
         pass
 
-
+@singleton
 class PostgreAlchemyConnection(AlchemyConnection):
     def __init__(self, config_arg):
         self._url = f'postgresql://{config_arg.db_pg_user}:{config_arg.db_pg_password}@{config_arg.db_pg_host}:{config_arg.db_pg_port}/{config_arg.db_pg_name}'
@@ -19,17 +17,12 @@ class PostgreAlchemyConnection(AlchemyConnection):
             url=self._url,
             echo=True
         )
-        self._session_factory = sessionmaker(self._engine)
+        self._session_maker = sessionmaker(self._engine)
 
-    def create_database(self):
-        from src.models.measure.model import MeasureModel
-        from src.models.parameter.model import ParameterModel
-        from src.models.region.model import RegionModel
-        from src.models.sector.model import SectorModel
-        from src.models.record.model import RecordModel
-        session = self._session_factory()
-        Base.metadata.drop_all(self._engine)
-        Base.metadata.create_all(self._engine)
+    @property
+    def engine(self):
+        return self._engine
 
-
-postgre_alchemy_connection = PostgreAlchemyConnection(config)
+    @property
+    def session_maker(self):
+        return self._session_maker

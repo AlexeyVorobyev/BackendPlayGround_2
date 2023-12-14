@@ -1,3 +1,3 @@
-from src.SQLAlchemy.connection import postgre_alchemy_connection
+from src.SQLAlchemy.orm import PostgreAlchemyORM
 
-postgre_alchemy_connection.create_database()
+PostgreAlchemyORM().create_database()
