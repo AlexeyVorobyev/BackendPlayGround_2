@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from src.dtos.get_all.dto import GetAllDTO
+
 
 class RegionDTO(BaseModel):
     id: str
@@ -17,6 +19,10 @@ class RegionEditDTO(BaseModel):
     description: str
 
 
-class PartialRegionEditDto(BaseModel):
+class RegionPartialEditDTO(BaseModel):
     name: str | None
     description: str | None
+
+
+class RegionGetAllDTO(GetAllDTO):
+    data: list[RegionDTO]

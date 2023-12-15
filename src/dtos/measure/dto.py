@@ -1,18 +1,18 @@
 from pydantic import BaseModel
 
 
-class RegionDTO(BaseModel):
+class MeasureDTO(BaseModel):
     id: str
     name: str
 
 
-class RegionAddDTO(BaseModel):
+class MeasureAddDTO(BaseModel):
     name: str
 
 
-class RegionEditDTO(BaseModel):
+class MeasureEditDTO(BaseModel):
     name: str
 
 
-class PartialRegionEditDto(BaseModel):
+class PartialMeasureEditDto(BaseModel):
     name: str | None

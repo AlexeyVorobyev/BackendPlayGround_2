@@ -35,7 +35,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     def get_by_id(self, id_arg: str):
         for instance in self._collection:
-            if instance.id == id_arg:
+            if str(instance.id) == id_arg:
                 return instance
         return None
 
