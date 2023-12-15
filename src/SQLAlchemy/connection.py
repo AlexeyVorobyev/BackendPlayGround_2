@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
 import sqlalchemy
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Engine
+from sqlalchemy.orm import sessionmaker, Session
 from src.utils.decorators.singleton import singleton
 
 
