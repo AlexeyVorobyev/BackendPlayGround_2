@@ -15,14 +15,16 @@ class RegionService:
 
     def get_regions(self, page, per_page) -> RegionGetAllDTO:
         pagination = PaginationDTO(**clear_dict_from_none(dict(page=page, per_page=per_page)))
-        region_instances: list[RegionModel] = self._repository.get_all(
+        region_instances = self._repository.get_all(
             page=pagination.page,
             per_page=pagination.per_page
         )
 
+        total_elements = self._repository.total_elements()
+
         return RegionGetAllDTO(
-            total_pages=math.ceil(self._repository.collection_length / pagination.per_page),
-            total_elements=self._repository.collection_length,
+            total_pages=math.ceil(total_elements / pagination.per_page),
+            total_elements=total_elements,
             data=[
                 dict(RegionDTO(
                     id=str(instance.id),

@@ -4,5 +4,8 @@ from src.utils.decorators.singleton import singleton
 
 
 @singleton
-class RegionRepository(SQLAlchemyRepository):
+class RegionRepository(SQLAlchemyRepository[RegionModel]):
     _model = RegionModel
+
+
+some = RegionRepository().get_all()

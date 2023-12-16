@@ -1,51 +1,50 @@
-from sqlalchemy import select, insert, delete, update
+from typing import Generic, TypeVar, Type
+
+from sqlalchemy import select, insert, delete, update, func
 from sqlalchemy.orm import Session
 from src.SQLAlchemy.base import Base
 from src.SQLAlchemy.connection import PostgreAlchemyConnection
-from src.utils.classes.AbstractRepository import AbstractRepository
+from src.utils.classes.abstract_repository import AbstractRepository
 from src.utils.classes.config import Config
 
+Model = TypeVar('Model')
 
-class SQLAlchemyRepository(AbstractRepository):
-    _model: Base = None
+
+class SQLAlchemyRepository(Generic[Model], AbstractRepository[Model]):
+    _model: Model = None
     _session_maker = PostgreAlchemyConnection(Config()).session_maker
-    _collection = []
-    _collection_length = 0
 
-    def __init__(self):
-        self._update_repository()
-
-    @property
-    def collection_length(self):
-        return self._collection_length
-
-    def _update_repository(self):
+    def total_elements(self):
         session: Session = self._session_maker()
-        statement = select(self._model)
-        result = session.execute(statement)
-        self._collection = [item[0] for item in result.all()]
-        self._collection_length = len(self._collection)
+        statement = select([func.count()]).select_from(self._model)
+        query_result = session.execute(statement)
+        result = query_result.scalar()
+        return result
 
     def get_all(self, page: int = 0, per_page: int = 8):
-        result = []
-        calc_end = len(self._collection) if len(self._collection) < per_page * (page + 1) else per_page * (page + 1)
-        for i in range(per_page * page, calc_end):
-            result.append(self._collection[i])
+        session: Session = self._session_maker()
+        statement = select(self._model).offset(page * per_page).limit(per_page)
+        query_result = session.execute(statement)
+        result = [item[0] for item in query_result.all()]
         return result
 
     def get_by_id(self, id_arg: str):
-        for instance in self._collection:
-            if str(instance.id) == id_arg:
-                return instance
-        return None
+        session: Session = self._session_maker()
+        statement = select(self._model).where(self._model.id == id_arg)
+        query_result = session.execute(statement)
+        result = query_result.first()
+        if result is None:
+            return None
+        else:
+            return result[0]
 
     def create(self, data):
         session: Session = self._session_maker()
         statement = insert(self._model).values(**data).returning(self._model.id)
-        res = session.execute(statement)
+        query_result = session.execute(statement)
         session.commit()
-        self._update_repository()
-        return res.scalar_one()
+        result = query_result.scalar_one()
+        return result
 
     def update(self, id_arg, data):
         session: Session = self._session_maker()
@@ -55,15 +54,15 @@ class SQLAlchemyRepository(AbstractRepository):
             .values(**data)
             .returning(self._model.id)
         )
-        res = session.execute(statement)
+        query_result = session.execute(statement)
         session.commit()
-        self._update_repository()
-        return res.scalar_one()
+        result = query_result.scalar_one()
+        return result
 
     def delete_by_id(self, id_arg):
         session: Session = self._session_maker()
         statement = delete(self._model).where(self._model.id == id_arg).returning(self._model.id)
-        res = session.execute(statement)
+        query_result = session.execute(statement)
         session.commit()
-        self._update_repository()
-        return res.scalar_one()
+        result = query_result.scalar_one()
+        return result
