@@ -55,8 +55,8 @@ class ParameterService:
             .build()
         )
 
-    def create_parameter(self, region: ParameterAddDTO) -> str:
-        return self._repository.create(dict(region))
+    def create_parameter(self, parameter: ParameterAddDTO) -> str:
+        return self._repository.create(dict(parameter))
 
     def get_parameter(self, id_arg: str) -> ParameterDTO:
         parameter_instance = self._repository.get_by_id(id_arg)
