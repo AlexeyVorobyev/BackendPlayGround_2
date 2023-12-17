@@ -11,7 +11,6 @@ from src.dtos.parameter.dto import (
     ParameterEditDTO,
     ParameterPartialEditDTO)
 from src.filters.parameter.filter import ParameterFilter
-from src.repositories.measure.repository import MeasureRepository
 from src.repositories.parameter.repository import ParameterRepository
 from src.utils.decorators.singleton import singleton
 from src.utils.functions.clear_dict_from_none import clear_dict_from_none, clear_nested_dict_from_none
@@ -19,8 +18,7 @@ from src.utils.functions.clear_dict_from_none import clear_dict_from_none, clear
 
 @singleton
 class ParameterService:
-    _repository_parameter = ParameterRepository()
-    _repository_measure = MeasureRepository()
+    _repository = ParameterRepository()
 
     def get_parameters(self, page, per_page, simple_filter) -> ParameterGetAllDTO:
         pagination = PaginationDTO(**clear_dict_from_none(dict(page=page, per_page=per_page)))
@@ -30,7 +28,7 @@ class ParameterService:
             }
         }))
 
-        parameter_instances = self._repository_parameter.get_all(
+        parameter_instances = self._repository.get_all(
             page=pagination.page,
             per_page=pagination.per_page,
             filter_instance=parameter_filter_instance
@@ -40,7 +38,7 @@ class ParameterService:
 
         return (
             parameter_get_all_builder
-            .total_elements(self._repository_parameter.total_elements(filter_instance=parameter_filter_instance))
+            .total_elements(self._repository.total_elements(filter_instance=parameter_filter_instance))
             .total_pages(math.ceil(parameter_get_all_builder.attr_total_elements() / pagination.per_page))
             .current_page(pagination.page)
             .data([
@@ -58,10 +56,10 @@ class ParameterService:
         )
 
     def create_parameter(self, region: ParameterAddDTO) -> str:
-        return self._repository_parameter.create(dict(region))
+        return self._repository.create(dict(region))
 
     def get_parameter(self, id_arg: str) -> ParameterDTO:
-        parameter_instance = self._repository_parameter.get_by_id(id_arg)
+        parameter_instance = self._repository.get_by_id(id_arg)
 
         if parameter_instance is None:
             raise Exception('No entities with provided id')
@@ -76,7 +74,7 @@ class ParameterService:
         )
 
     def delete_parameter(self, id_arg: str | None) -> str:
-        return self._repository_parameter.delete_by_id(id_arg)
+        return self._repository.delete_by_id(id_arg)
 
     def update_parameter(self, id_arg: str | None, parameter: ParameterEditDTO | ParameterPartialEditDTO) -> str:
-        return self._repository_parameter.update(id_arg=id_arg, data=dict(parameter))
+        return self._repository.update(id_arg=id_arg, data=dict(parameter))
