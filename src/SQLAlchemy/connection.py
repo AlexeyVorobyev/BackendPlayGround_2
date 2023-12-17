@@ -16,7 +16,7 @@ class PostgreAlchemyConnection(AlchemyConnection):
         self._url = f'postgresql://{config_arg.db_pg_user}:{config_arg.db_pg_password}@{config_arg.db_pg_host}:{config_arg.db_pg_port}/{config_arg.db_pg_name}'
         self._engine = sqlalchemy.create_engine(
             url=self._url,
-            echo=True
+            echo=False
         )
         self._session_maker = sessionmaker(self._engine)
 

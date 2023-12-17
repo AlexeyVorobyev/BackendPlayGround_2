@@ -14,6 +14,6 @@ class ParameterModel(Base):
     id: Mapped[Optional[str]] = mapped_column(UUID, primary_key=True, server_default=text("gen_random_uuid()"))
     name: Mapped[str] = mapped_column(String(100))
     measure_id: Mapped[str] = mapped_column(ForeignKey('measure.id'))
-    children: Mapped[List[RecordModel]] = relationship()
 
-n = ParameterModel()
+    parent: Mapped['MeasureModel'] = relationship()
+    children: Mapped[List[RecordModel]] = relationship()

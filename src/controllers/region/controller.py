@@ -11,8 +11,12 @@ router = APIRouter(
 class RegionController:
     @staticmethod
     @router.get("")
-    def get_regions(page: int | None = None, per_page: int | None = None) -> RegionGetAllDTO:
-        return RegionService().get_regions(page, per_page)
+    def get_regions(
+            page: int | None = None,
+            per_page: int | None = None,
+            simple_filter: str | None = None
+    ) -> RegionGetAllDTO:
+        return RegionService().get_regions(page, per_page, simple_filter)
 
     @staticmethod
     @router.post("")

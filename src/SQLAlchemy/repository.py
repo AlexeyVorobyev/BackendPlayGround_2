@@ -1,29 +1,36 @@
-from typing import Generic, TypeVar, Type
-
+from abc import ABC
+from typing import Generic, TypeVar
 from sqlalchemy import select, insert, delete, update, func
 from sqlalchemy.orm import Session
-from src.SQLAlchemy.base import Base
 from src.SQLAlchemy.connection import PostgreAlchemyConnection
 from src.utils.classes.abstract_repository import AbstractRepository
 from src.utils.classes.config import Config
 
 Model = TypeVar('Model')
+Filter = TypeVar('Filter')
 
 
-class SQLAlchemyRepository(Generic[Model], AbstractRepository[Model]):
+class SQLAlchemyRepository(Generic[Model, Filter], AbstractRepository[Model, Filter], ABC):
     _model: Model = None
     _session_maker = PostgreAlchemyConnection(Config()).session_maker
 
-    def total_elements(self):
+    def total_elements(self, filter_instance: Filter):
         session: Session = self._session_maker()
-        statement = select([func.count()]).select_from(self._model)
+        statement = filter_instance.filter(
+            select(func.count())
+            .select_from(self._model)
+        )
         query_result = session.execute(statement)
         result = query_result.scalar()
         return result
 
-    def get_all(self, page: int = 0, per_page: int = 8):
+    def get_all(self, filter_instance: Filter, page: int, per_page: int):
         session: Session = self._session_maker()
-        statement = select(self._model).offset(page * per_page).limit(per_page)
+        statement = filter_instance.filter(
+            select(self._model)
+            .offset(page * per_page)
+            .limit(per_page)
+        )
         query_result = session.execute(statement)
         result = [item[0] for item in query_result.all()]
         return result
@@ -36,7 +43,8 @@ class SQLAlchemyRepository(Generic[Model], AbstractRepository[Model]):
         if result is None:
             return None
         else:
-            return result[0]
+            result: Model = result[0]
+            return result
 
     def create(self, data):
         session: Session = self._session_maker()
